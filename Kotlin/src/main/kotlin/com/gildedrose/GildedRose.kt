@@ -18,50 +18,66 @@ class GildedRose(var items: Array<Item>) {
     private fun updateSingleItem(item: Item) {
         updateQuality(item)
 
-        if (item.name != "Sulfuras, Hand of Ragnaros") {
-            item.sellIn = item.sellIn - 1
-        }
+        decrementSellin(item)
 
-        if (item.sellIn < 0) {
-            if (item.name != "Aged Brie") {
-                if (item.name != "Backstage passes to a TAFKAL80ETC concert") {
-                    if (item.quality > 0) {
-                        if (item.name != "Sulfuras, Hand of Ragnaros") {
-                            item.quality = item.quality - 1
-                        }
-                    }
-                } else {
-                    item.quality = item.quality - item.quality
-                }
-            } else {
+        if (isSellinExpired(item)) {
+            updateSellinExpired(item)
+        }
+    }
+
+    private fun isSellinExpired(item: Item) = item.sellIn < 0
+
+    private fun updateSellinExpired(item: Item) {
+        when (item.name) {
+            "Aged Brie" -> {
                 incrementQuality(item)
             }
+            "Backstage passes to a TAFKAL80ETC concert" -> {
+                item.quality = item.quality - item.quality
+            }
+            "Sulfuras, Hand of Ragnaros" -> {
+                return
+            }
+            else -> {
+                decrementQuality(item)
+            }
+        }
+    }
+
+    private fun decrementQuality(item: Item) {
+        if (item.quality > 0) {
+            item.quality = item.quality - 1
+        }
+    }
+
+    private fun decrementSellin(item: Item) {
+        if (item.name != "Sulfuras, Hand of Ragnaros") {
+            item.sellIn = item.sellIn - 1
         }
     }
 
     private fun updateQuality(item: Item) {
-        if (item.name != "Aged Brie" && item.name != "Backstage passes to a TAFKAL80ETC concert") {
-            if (item.quality > 0) {
-                if (item.name != "Sulfuras, Hand of Ragnaros") {
-                    item.quality = item.quality - 1
-                }
+        when (item.name) {
+            "Aged Brie" -> {
+                incrementQuality(item)
             }
-        } else {
-            if (item.quality < 50) {
-                item.quality = item.quality + 1
-
-                if (item.name == "Backstage passes to a TAFKAL80ETC concert") {
-                    if (item.sellIn < 11) {
-                        incrementQuality(item)
-                    }
-
-                    if (item.sellIn < 6) {
-                        incrementQuality(item)
-                    }
-                }
+            "Backstage passes to a TAFKAL80ETC concert" -> {
+                incrementQuality(item)
+                updateBackstage(item)
             }
+            "Sulfuras, Hand of Ragnaros" -> return
+            else -> decrementQuality(item)
+        }
+    }
+
+    private fun updateBackstage(item: Item) {
+        if (item.sellIn < 11) {
+            incrementQuality(item)
+        }
+
+        if (item.sellIn < 6) {
+            incrementQuality(item)
         }
     }
 
 }
-
